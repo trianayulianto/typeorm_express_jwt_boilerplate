@@ -39,7 +39,7 @@ class AuthController {
     const token = req.cookies.refreshToken;
     const ipAddress = req.ip;
 
-    await this.userRepository.refreshToken({ token, ipAddress })
+    await this.refreshTokenRepository.refreshToken({ token, ipAddress })
       .then(({ refreshToken, ...account }) => {
         this.setTokenCookie(res, refreshToken);
 
@@ -85,7 +85,16 @@ class AuthController {
 
     await this.userRepository
       .register(req.body, req.get('origin'))
-      .then(({ message }) => {
+      .then(({ message, token }) => {
+        if (token !== undefined) {
+          res.json({
+            status: 'success',
+            message,
+            token,
+          });
+
+          return;
+        }
         res.json({
           status: 'success',
           message,
@@ -107,10 +116,19 @@ class AuthController {
 
   async forgotPassword(req, res, next) {
     await this.userRepository.forgotPassword(req.body, req.get('origin'))
-      .then(() => {
+      .then(({ message, token }) => {
+        if (token !== undefined) {
+          res.json({
+            status: 'success',
+            message,
+            token,
+          });
+
+          return;
+        }
         res.json({
           status: 'success',
-          message: 'Please check your email for password reset instructions',
+          message,
         });
       })
       .catch(next);

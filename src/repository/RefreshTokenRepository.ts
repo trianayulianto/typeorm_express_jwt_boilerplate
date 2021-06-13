@@ -1,12 +1,20 @@
 import { EntityRepository, Repository } from 'typeorm';
 import * as crypto from 'crypto';
+import * as jwt from 'jsonwebtoken';
 import RefreshToken from '../entity/RefreshToken';
 
 @EntityRepository(RefreshToken)
 class RefreshTokenRepository extends Repository<RefreshToken> {
   // eslint-disable-next-line class-methods-use-this
-  public randomTokenString() {
+  private randomTokenString() {
     return crypto.randomBytes(40).toString('hex');
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  private async generateJwtToken(account) {
+    const token = await jwt.sign(account, process.env.TOKEN_SECRET, { expiresIn: '1d' });
+
+    return token;
   }
 
   async generateRefreshToken(account, ipAddress) {
@@ -28,6 +36,38 @@ class RefreshTokenRepository extends Repository<RefreshToken> {
     }
 
     return refreshToken;
+  }
+
+  async refreshToken({ token, ipAddress }) {
+    const refreshToken = await this.getRefreshToken(token);
+
+    const {
+      id, name, email, role,
+    } = await refreshToken.user;
+
+    const account = {
+      id, name, email, role,
+    };
+
+    // replace old refresh token with a new one and save
+    const newRefreshToken = await this.generateRefreshToken(account, ipAddress);
+
+    refreshToken.revoked = new Date(Date.now());
+    refreshToken.revokedByIp = ipAddress;
+    refreshToken.replacedByToken = newRefreshToken.token;
+
+    await this.save(refreshToken);
+    await this.save(newRefreshToken);
+
+    // generate new jwt
+    const accessToken = await this.generateJwtToken(account);
+
+    // return basic details and tokens
+    return {
+      ...account,
+      accessToken,
+      refreshToken: newRefreshToken.token,
+    };
   }
 
   async revokeToken({ token, ipAddress }) {

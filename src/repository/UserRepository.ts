@@ -50,32 +50,6 @@ class UserRepository extends Repository<User> {
     };
   }
 
-  async refreshToken({ token, ipAddress }) {
-    const refreshToken = await this.refreshTokenRepository.getRefreshToken(token);
-    const account = await refreshToken.user;
-
-    // replace old refresh token with a new one and save
-    const newRefreshToken = await this.refreshTokenRepository
-      .generateRefreshToken(account, ipAddress);
-
-    refreshToken.revoked = new Date(Date.now());
-    refreshToken.revokedByIp = ipAddress;
-    refreshToken.replacedByToken = newRefreshToken.token;
-
-    await this.refreshTokenRepository.save(refreshToken);
-    await this.refreshTokenRepository.save(newRefreshToken);
-
-    // generate new jwt
-    const accessToken = await this.generateJwtToken(account, true);
-
-    // return basic details and tokens
-    return {
-      ...this.basicDetails(account),
-      accessToken,
-      refreshToken: newRefreshToken.token,
-    };
-  }
-
   async register(params, origin) {
     // validate
     if (await this.findOne({ where: { email: params.email } })) {
@@ -98,7 +72,7 @@ class UserRepository extends Repository<User> {
     await this.save(account);
 
     // terminate if email must not verified or EMAIL_MUST_VERIFIED have value false
-    if (!(process.env.EMAIL_MUST_VERIFIED === 'true')) {
+    if (process.env.EMAIL_MUST_VERIFIED !== 'true') {
       // eslint-disable-next-line consistent-return
       return { message: 'Registration successful, You can now login' };
     }
@@ -108,6 +82,14 @@ class UserRepository extends Repository<User> {
 
     // send email
     await this.sendVerificationEmail({ ...account, token }, origin);
+
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line consistent-return
+      return {
+        message: 'Registration successful, please check your email for verification instructions',
+        token,
+      };
+    }
 
     // eslint-disable-next-line consistent-return
     return { message: 'Registration successful, please check your email for verification instructions' };
@@ -140,6 +122,17 @@ class UserRepository extends Repository<User> {
 
     // send email
     await this.sendPasswordResetEmail({ ...account, token }, origin);
+
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line consistent-return
+      return {
+        message: 'Please check your email for password reset instructions',
+        token,
+      };
+    }
+
+    // eslint-disable-next-line consistent-return
+    return { message: 'Please check your email for password reset instructions' };
   }
 
   async resetPassword({ token, password }) {

@@ -39,7 +39,7 @@ const Auths = [
     action: 'revokeToken',
     middleware: [
       authenticate,
-      authorize([0]),
+      authorize([0, 1]),
       revokeTokenSchema,
     ],
   },
