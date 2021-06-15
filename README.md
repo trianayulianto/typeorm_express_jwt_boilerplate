@@ -70,7 +70,7 @@ $ npm run start
 
 ### Middleware
 Protect your router via middleware
-  - Authenticate
+#### Authenticate
 User must logged in
 ```typescript
 import authenticate from '../middleware/Authenticate';
@@ -87,7 +87,7 @@ export const Users = [
   }
 ]
 ```
-  - Authorize
+#### Authorize
 User must logged in and have right role
 ```typescript
 import authenticate from '../middleware/Authenticate';
@@ -106,7 +106,7 @@ export const Users = [
   }
 ]
 ```
-  - Email Must Verified
+#### Email Must Verified
 User must logged in and users email must verified
 ```typescript
 import authenticate from '../middleware/Authenticate';
