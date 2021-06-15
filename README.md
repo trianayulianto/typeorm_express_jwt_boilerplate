@@ -46,10 +46,10 @@ $ npm install
 NODE_ENV=development
 
 # jwt's secret token
-TOKEN_SECRET=your_secret // or use this command to make it `require('crypto').randomBytes(40).toString('hex')`
+TOKEN_SECRET=your_secret # or use this command to make it `require('crypto').randomBytes(40).toString('hex')`
 
 # Auth's email must verified
-EMAIL_MUST_VERIFIED=true // if you want to use email verification future
+EMAIL_MUST_VERIFIED=true # if you want to use email verification future
 
 # nodemailer config
 MAIL_HOST=smtp.mailtrap.io
