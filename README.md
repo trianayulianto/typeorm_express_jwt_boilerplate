@@ -71,60 +71,60 @@ $ npm run start
 ### Middleware
 Protect your router via middleware
   - Authenticate
-  User must logged in
-  ```typescript
-  import authenticate from '../middleware/Authenticate';
+User must logged in
+```typescript
+import authenticate from '../middleware/Authenticate';
 
-  export const Users = [
-    {
-      method: 'get',
-      route: '/users',
-      controller: UserController,
-      action: 'all',
-      middleware: [
-        authenticate,
-      ],
-    }
-  ]
-  ```
+export const Users = [
+  {
+    method: 'get',
+    route: '/users',
+    controller: UserController,
+    action: 'all',
+    middleware: [
+      authenticate,
+    ],
+  }
+]
+```
   - Authorize
-  User must logged in and have right role
-  ```typescript
-  import authenticate from '../middleware/Authenticate';
-  import authorize from '../middleware/Authorize';
+User must logged in and have right role
+```typescript
+import authenticate from '../middleware/Authenticate';
+import authorize from '../middleware/Authorize';
 
-  export const Users = [
-    {
-      method: 'get',
-      route: '/users',
-      controller: UserController,
-      action: 'all',
-      middleware: [
-        authenticate, // make sure add this bifore authorize middleware
-        authorize([0]), // 0 for root/admin, you can use more then one role `[0, 1]`
-      ],
-    }
-  ]
-  ```
+export const Users = [
+  {
+    method: 'get',
+    route: '/users',
+    controller: UserController,
+    action: 'all',
+    middleware: [
+      authenticate, // make sure add this bifore authorize middleware
+      authorize([0]), // 0 for root/admin, you can use more then one role `[0, 1]`
+    ],
+  }
+]
+```
   - Email Must Verified
-  User must logged in and users email must verified
-  ```typescript
-  import authenticate from '../middleware/Authenticate';
-  import mustVerified from '../middleware/MustVerified';
+User must logged in and users email must verified
+```typescript
+import authenticate from '../middleware/Authenticate';
+import mustVerified from '../middleware/MustVerified';
 
-  export const Users = [
-    {
-      method: 'get',
-      route: '/users',
-      controller: UserController,
-      action: 'all',
-      middleware: [
-        authenticate, // make sure add this bifore mustVerified middleware
-        mustVerified,
-      ],
-    }
-  ]
-  ```
+export const Users = [
+  {
+    method: 'get',
+    route: '/users',
+    controller: UserController,
+    action: 'all',
+    middleware: [
+      authenticate, // make sure add this bifore mustVerified middleware
+      mustVerified,
+    ],
+  }
+]
+```
 
 ### Validation Shcema
 For request Validation we user `Joi`. You can make your own validation shcema in `src/middleware/shcema` directory
