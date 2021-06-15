@@ -13,7 +13,7 @@ $ npm install
 
 ```
 2. Setup database settings inside `ormconfig.json` file
-```json
+```typescript
 {
    "type": "mysql",
    "host": "localhost",
