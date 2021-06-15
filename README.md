@@ -22,6 +22,21 @@ $ npm install
    "password": "your_password",
    "database": "db_name",
    "synchronize": true, // make sure change to false for production
+   "entities": [
+      "src/entity/**/*.ts"
+   ],
+   "migrations": [
+      "src/migration/**/*.ts"
+   ],
+   "subscribers": [
+      "src/subscriber/**/*.ts"
+   ],
+   "cli": {
+      "entitiesDir": "src/entity",
+      "migrationsDir": "src/migration",
+      "subscribersDir": "src/subscriber"
+   }
+}
 
 ```
 
