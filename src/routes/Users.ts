@@ -1,6 +1,7 @@
 import UserController from '../controller/UserController';
 import authenticate from '../middleware/Authenticate';
 import authorize from '../middleware/Authorize';
+import { createUserSchema, updateUserSchema } from '../middleware/schema/UserSchema';
 
 const Users = [
   {
@@ -29,6 +30,7 @@ const Users = [
     middleware: [
       authenticate,
       authorize([0]),
+      createUserSchema,
     ],
   },
   {
@@ -39,6 +41,7 @@ const Users = [
     middleware: [
       authenticate,
       authorize([0]),
+      updateUserSchema,
     ],
   },
   {

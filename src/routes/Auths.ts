@@ -9,7 +9,7 @@ import {
 const Auths = [
   {
     method: 'get',
-    route: 'profile',
+    route: 'me',
     controller: AuthController,
     action: 'getUserProfile',
     middleware: [

@@ -23,7 +23,7 @@ class User {
   @Column({ select: false })
   password: string;
 
-  @Column()
+  @Column({ default: 1 })
   role: number;
 
   @Column({ name: 'verified_at', type: 'timestamp', nullable: true })

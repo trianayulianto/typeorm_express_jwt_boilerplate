@@ -1,7 +1,7 @@
 import TodoController from '../controller/TodoController';
 import todoSchema from '../middleware/schema/TodoSchema';
 import authenticate from '../middleware/Authenticate';
-import authorize from '../middleware/Authorize';
+import mustVerified from '../middleware/MustVerified';
 
 const Todos = [
   {
@@ -11,7 +11,7 @@ const Todos = [
     action: 'all',
     middleware: [
       authenticate,
-      authorize([0, 1]),
+      mustVerified,
     ],
   },
   {
@@ -19,7 +19,10 @@ const Todos = [
     route: '/todos/:id',
     controller: TodoController,
     action: 'one',
-    middleware: [],
+    middleware: [
+      authenticate,
+      mustVerified,
+    ],
   },
   {
     method: 'post',
@@ -27,6 +30,8 @@ const Todos = [
     controller: TodoController,
     action: 'save',
     middleware: [
+      authenticate,
+      mustVerified,
       todoSchema,
     ],
   },
@@ -36,6 +41,8 @@ const Todos = [
     controller: TodoController,
     action: 'update',
     middleware: [
+      authenticate,
+      mustVerified,
       todoSchema,
     ],
   },
@@ -44,7 +51,10 @@ const Todos = [
     route: '/todos/:id',
     controller: TodoController,
     action: 'remove',
-    middleware: [],
+    middleware: [
+      authenticate,
+      mustVerified,
+    ],
   },
 ];
 

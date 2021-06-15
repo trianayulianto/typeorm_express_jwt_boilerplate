@@ -35,7 +35,7 @@
       "typeorm": "0.2.34"
    },
    "scripts": {
-      "dev": "ts-node-dev src/index.ts",
-      "start": "ts-node src/index.ts"
+      "dev": "ts-node-dev --poll --respawn --transpile-only ./src/index.ts",
+      "start": "ts-node ./src/index.ts"
    }
 }

@@ -25,10 +25,6 @@ class UserRepository extends Repository<User> {
       throw new Error('Email incorrect');
     }
 
-    if (!account.isVerified && (process.env.EMAIL_MUST_VERIFIED === 'true')) {
-      throw new Error('Email not verified');
-    }
-
     const passwordIsValid = bcrypt.compareSync(password, account.password);
 
     if (!passwordIsValid) {
