@@ -32,7 +32,7 @@ class UserRepository extends Repository<User> {
     }
 
     // authentication successful so generate jwt
-    const accessToken = await this.generateJwtToken(account, true);
+    const accessToken = await this.generateJwtToken(account);
 
     // generate refresh token
     const refreshToken = await this.refreshTokenRepository.generateRefreshToken(account, ipAddress);
@@ -74,7 +74,7 @@ class UserRepository extends Repository<User> {
     }
 
     // make email token verification
-    const token = await this.generateJwtToken(account);
+    const token = await this.generateToken(account, 'verify-token');
 
     // send email
     await this.sendVerificationEmail({ ...account, token }, origin);
@@ -92,7 +92,11 @@ class UserRepository extends Repository<User> {
   }
 
   async verifyEmail({ token }) {
-    const account = await this.validateToken({ token });
+    const { account, role } = await this.validateToken({ token });
+
+    if (role !== 'verify-token') {
+      throw new Error('Invalid token');
+    }
 
     // check if email already verified
     if (account.isVerified) {
@@ -111,7 +115,7 @@ class UserRepository extends Repository<User> {
     // always return ok response to prevent email enumeration
     if (!account) return;
 
-    const token = await this.generateJwtToken(account);
+    const token = await this.generateToken(account, 'reset-token');
 
     // eslint-disable-next-line
     await this.passwordResetRepository.save({ email: account.email, token });
@@ -132,7 +136,11 @@ class UserRepository extends Repository<User> {
   }
 
   async resetPassword({ token, password }) {
-    const account = await this.validateToken({ token });
+    const { account, role } = await this.validateToken({ token });
+
+    if (role !== 'reset-token') {
+      throw new Error('Invalid token');
+    }
 
     const isValidToken = await this.passwordResetRepository.findOne({
       where: { email: account.email, token },
@@ -154,25 +162,30 @@ class UserRepository extends Repository<User> {
 
   // helper
   private async validateToken({ token }) {
-    const { id } = await this.decodeJwtToken(token);
+    const { id, role } = await this.decodeToken(token);
 
     const account = await this.findOne({ where: { id } });
 
     if (!account) throw new Error('User not found');
 
-    return account;
+    return { account, role };
   }
 
-  private async generateJwtToken(account, authenticate = false) {
-    const userData = authenticate ? this.basicDetails(account) : { id: account.id };
-
-    const token = await jwt.sign(userData, process.env.TOKEN_SECRET, { expiresIn: '1d' });
+  private async generateJwtToken(account) {
+    const token = await jwt.sign(this.basicDetails(account), process.env.TOKEN_SECRET, { expiresIn: '1d' });
 
     return token;
   }
 
-  private async decodeJwtToken(token) {
-    const decode = await jwt.verify(token, process.env.TOKEN_SECRET, (e, d) => {
+  // role used to defferentiate as verify token or reset token
+  private async generateToken(account, role) {
+    const token = await jwt.sign({ id: account.id, role }, process.env.TOKEN_KEY, { expiresIn: '15m' });
+
+    return token;
+  }
+
+  private async decodeToken(token) {
+    const decode = await jwt.verify(token, process.env.TOKEN_KEY, (e, d) => {
       if (e) {
         throw new Error(e);
       }
